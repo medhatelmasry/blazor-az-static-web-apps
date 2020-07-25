@@ -73,7 +73,6 @@ typings/
 .env.test
 
 
-.vscode
 
 .vs
 
@@ -87,3 +86,5 @@ obj
 appsettings.json
 
 local.settings.json
+
+.vscode

@@ -11,102 +11,77 @@ const container = database.container(CONTAINER);
 
 const seedProducts = async () => {
 
-    let partition_key = JSON.parse(PARTITION_KEY);
+  let partition_key = JSON.parse(PARTITION_KEY);
 
-    await DbContext.create(client, DATABASE, CONTAINER, partition_key);
+  await DbContext.create(client, DATABASE, CONTAINER, partition_key);
 
-    let iterator = container.items.readAll();
-    let { resources } = await iterator.fetchAll();
+  let iterator = container.items.readAll();
+  let { resources } = await iterator.fetchAll();
 
-    if (resources.length > 0) {
-        return { "message": `The database is already seeded with   ${resources.length} products.` };
-    } else {
-        const products = SeedData.getSeedProductData();
+  if (resources.length > 0) {
+    return { "message": `The database is already seeded with   ${resources.length} products.` };
+  } else {
+    const products = SeedData.getSeedProductData();
 
-        console.log("proiducts >>>>>", products);
+    console.log("proiducts >>>>>", products);
 
-        products.forEach(async function (item) {
-            const { resource: createdItem } = await container.items.create(item);
-            console.log(item);
-        })
+    products.forEach(async function (item) {
+      const { resource: createdItem } = await container.items.create(item);
+      console.log(item);
+    })
 
-        return { "message": `The database has been seeded with ${products.length} products.` };
-    }
+    return { "message": `The database has been seeded with ${products.length} products.` };
+  }
 
 };
 
 const getProducts = async () => {
-    let iterator = container.items.readAll();
-    let { resources } = await iterator.fetchAll();
-    return resources;
+  let iterator = container.items.readAll();
+  let { resources } = await iterator.fetchAll();
+  return resources;
 };
 
 const addProduct = async (productToAdd) => {
+  // remove 'id' property from the JSON object
+  delete productToAdd.id;
+  let { product } = await container.items.create(productToAdd);
+  return product;
+};
 
-    // remove 'id' property from the JSON object
-  
-    delete productToAdd.id;
-  
-  
-    let { product } = await container.items.create(productToAdd);
-  
-    return product;
-  
+
+const updateProduct = async (id, product) => {
+  return await container.item(id, product.name).replace(product);
+};
+
+
+const readProduct = async (id) => {
+  // query to return all items
+  const querySpec = {
+    query: "SELECT * FROM c WHERE c.id='" + id + "'"
   };
-  
-  
-  const updateProduct = async (id, product) => {
-  
-    return await container.item(id, product.name).replace(product);
-  
-  };
-  
-  
-  const readProduct = async (id) => {
-  
-    // query to return all items
-  
-    const querySpec = {
-  
-      query: "SELECT * FROM c WHERE c.id='" + id + "'"
-  
-    };
-  
-  
-    // read all items in the Items container
-  
-    const { resources: items } = await container.items
-  
-      .query(querySpec)
-  
-      .fetchAll();
-  
-  
-    if (items.length > 0)
-  
-      return items[0];
-  
-    else
-  
-      return {};
-  
-  };
-  
-  
-  const deleteProduct = async (id, name) => {
-  
-    return await container.item(id, name).delete();
-  
-  };
+
+
+  // read all items in the Items container
+
+  const { resources: items } = await container.items
+    .query(querySpec)
+    .fetchAll();
+
+  if (items.length > 0)
+    return items[0];
+  else
+    return {};
+};
+
+const deleteProduct = async (id, name) => {
+  return await container.item(id, name).delete();
+};
 
 module.exports = {
-    seedProducts,
-    getProducts,
-    addProduct,
-
-updateProduct,
-
-deleteProduct,
-
-readProduct,
+  seedProducts,
+  getProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  readProduct,
 };

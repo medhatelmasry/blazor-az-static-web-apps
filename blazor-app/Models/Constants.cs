@@ -6,9 +6,9 @@ namespace blazor_app.Models {
 
       get {
 
-        //return "http://localhost:7071/";
+        return "http://localhost:7071/";
 
-        return "/";
+        //return "/";
 
       }
 

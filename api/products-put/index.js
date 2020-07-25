@@ -1,16 +1,14 @@
-module.exports = async function (context, req) {
-    context.log('JavaScript HTTP trigger function processed a request.');
+const data = require('../shared/product-data');
 
-    if (req.query.name || (req.body && req.body.name)) {
-        context.res = {
-            // status: 200, /* Defaults to 200 */
-            body: "Hello " + (req.query.name || req.body.name)
-        };
-    }
-    else {
-        context.res = {
-            status: 400,
-            body: "Please pass a name on the query string or in the request body"
-        };
-    }
+module.exports = async function (context, req) {
+
+  const id = req.params.id;
+  const product = req.body;
+
+  try {
+    const { updatedProduct } = await data.updateProduct(id, product);
+    context.res.status(200).json(updatedProduct);
+  } catch (error) {
+    context.res.status(500).send(error);
+  }
 };
